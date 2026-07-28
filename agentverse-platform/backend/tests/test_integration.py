@@ -15,9 +15,22 @@ if str(graph_path) not in sys.path:
 from app.db.session import init_db
 from app.planning.agent import run_planning_agent
 from app.report.pdf_builder import generate_report_files
-from app.graph_builder import build_graph_from_geojson
-from app.centrality import compute_critical_nodes
-from app.simulation import run_disaster_simulation
+
+import importlib.util
+
+def load_graph_module(name: str, file_name: str):
+    spec = importlib.util.spec_from_file_location(name, graph_path / "app" / file_name)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+graph_builder_mod = load_graph_module("graph_builder_mod", "graph_builder.py")
+centrality_mod = load_graph_module("centrality_mod", "centrality.py")
+simulation_mod = load_graph_module("simulation_mod", "simulation.py")
+
+build_graph_from_geojson = graph_builder_mod.build_graph_from_geojson
+compute_critical_nodes = centrality_mod.compute_critical_nodes
+run_disaster_simulation = simulation_mod.run_disaster_simulation
 
 
 def test_full_pipeline_without_mock_data():

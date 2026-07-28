@@ -11,3 +11,12 @@ dist/
 build/
 agentverse.db
 agentverse-platform/backend/kratos.db
+.env
+.env.*
+*.env
+.env.local
+*.key
+*.pem
+*.db
+*.zip
+reports/

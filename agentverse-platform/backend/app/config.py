@@ -13,7 +13,13 @@ class Settings(BaseSettings):
 
     NIM_ENDPOINT: str = os.getenv("NIM_ENDPOINT", "")
     NIM_API_KEY: str = os.getenv("NIM_API_KEY", "")
-    CUOPT_ENDPOINT: str = os.getenv("CUOPT_ENDPOINT", "")
+    NVIDIA_API_KEY: str = os.getenv("NVIDIA_API_KEY", "")
+    CUOPT_API_KEY: str = os.getenv("CUOPT_API_KEY", "")
+    CUOPT_ENDPOINT: str = os.getenv("CUOPT_ENDPOINT", "https://integrate.api.nvidia.com/v1/cuopt")
+
+    @property
+    def active_nvidia_key(self) -> str:
+        return self.NVIDIA_API_KEY or self.CUOPT_API_KEY or self.NIM_API_KEY
 
     REPORTS_DIR: str = os.getenv("REPORTS_DIR", "./reports")
 

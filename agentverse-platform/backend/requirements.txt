@@ -13,4 +13,6 @@ pytest
 networkx
 pillow
 numpy
+scipy
+scikit-learn
 

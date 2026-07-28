@@ -44,3 +44,19 @@ def get_past_run_detail(workflow_id: str, db: Session = Depends(get_db)):
             "report_data": run.report_data,
         },
     }
+
+
+@router.get("/vector/stats")
+def get_vector_db_stats():
+    """Returns vector database status and portable stored embedding statistics."""
+    from app.memory.vector_db import vector_db
+    import os
+    db_exists = os.path.exists(vector_db.db_path)
+    size_bytes = os.path.getsize(vector_db.db_path) if db_exists else 0
+    return {
+        "status": "online" if db_exists else "initializing",
+        "vector_db_path": os.path.abspath(vector_db.db_path),
+        "size_bytes": size_bytes,
+        "reusable_offline": True,
+    }
+

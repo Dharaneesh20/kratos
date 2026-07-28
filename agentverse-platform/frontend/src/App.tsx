@@ -114,7 +114,7 @@ export function App() {
         state: 'RUNNING',
         current_stage: 'INIT',
         pct: 5,
-        hazard_type,
+        hazard_type: hazardType,
         severity,
         results: {},
         logs: [{ agent: 'coordinator', stage: 'INIT', message: 'Workflow initiated', time: new Date().toISOString() }],
