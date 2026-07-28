@@ -1,0 +1,13 @@
+=== Disaster Resilience Report: FLOOD ===
+Workflow ID: wf_test123
+Resilience Score: 48%
+Travel Delay: +167.4%
+
+Executive Summary:
+Following the simulated FLOOD disaster event, topological graph network analysis evaluated transport resilience at 48%. Major bottlenecks created an average travel delay increase of +167.4% across critical arterial routes.
+
+Recommendations:
+- Deploy emergency logistics teams immediately to clear arterial routes around safe node 'n_1'.
+- Post-disaster network resilience is measured at 48% with a calculated travel delay impact of +167.4%.
+- Prioritize repair sequence for Node n_1 to restore connectivity to isolated sectors.
+- Establish emergency relief posts in isolated regions: Sector (37.7749, -122.4194).

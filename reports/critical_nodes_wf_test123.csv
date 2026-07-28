@@ -1,0 +1,9 @@
+Type,Node ID,Latitude,Longitude,Criticality Score,Bridge Adjacent,Priority/ETA,Details
+Critical Node,n_1,37.775,-122.415,0.6172,True,-,"Betweenness: 0.8333, Closeness: 0.0189"
+Critical Node,n_3,37.779,-122.4152,0.3789,True,-,"Betweenness: 0.5, Closeness: 0.0155"
+Critical Node,n_0,37.7749,-122.4194,0.0407,True,-,"Betweenness: 0.0, Closeness: 0.0126"
+Critical Node,n_2,37.7752,-122.41,0.0405,True,-,"Betweenness: 0.0, Closeness: 0.0121"
+Critical Node,n_4,37.783,-122.4155,0.04,True,-,"Betweenness: 0.0, Closeness: 0.0101"
+Evacuation Route,n_3,-,-,-,-,ETA: 1.0m,"To: n_1, Vehicle: ambulance"
+Evacuation Route,n_2,-,-,-,-,ETA: 1.0m,"To: n_1, Vehicle: evacuation_bus"
+Evacuation Route,n_4,-,-,-,-,ETA: 1.5m,"To: n_1, Vehicle: ambulance"
