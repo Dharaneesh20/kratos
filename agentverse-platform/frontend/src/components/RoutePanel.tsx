@@ -12,16 +12,19 @@ export const RoutePanel: React.FC<RoutePanelProps> = ({ planningData }) => {
   const recommendations = planningData?.recommendations || [];
 
   return (
-    <div className="bg-card border border-border rounded-xl p-5 shadow-sm space-y-5">
+    <div className="bg-card border border-border rounded-xl p-4 shadow-sm h-[260px] overflow-y-auto space-y-4">
       {/* Evacuation Routes Section */}
       <div>
-        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-          <Navigation className="w-5 h-5 text-primary" />
-          <h3 className="text-sm font-bold tracking-wide uppercase">cuOpt Evacuation Routes ({routes.length})</h3>
+        <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-border">
+          <div className="flex items-center gap-2">
+            <Navigation className="w-4 h-4 text-primary" />
+            <h3 className="text-xs font-bold tracking-wide uppercase">cuOpt Evacuation Routes ({routes.length})</h3>
+          </div>
+          <span className="text-[10px] font-mono text-muted-foreground">GPU Accelerated</span>
         </div>
 
         {routes.length === 0 ? (
-          <p className="text-xs text-muted-foreground italic py-2">No active evacuation routes calculated yet.</p>
+          <p className="text-xs text-muted-foreground italic py-1">No active evacuation routes calculated yet. Run pipeline to compute optimal vectors.</p>
         ) : (
           <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
             {routes.map((r) => (
@@ -51,9 +54,9 @@ export const RoutePanel: React.FC<RoutePanelProps> = ({ planningData }) => {
 
       {/* Repair Priorities Section */}
       <div>
-        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-          <Wrench className="w-5 h-5 text-amber-500" />
-          <h3 className="text-sm font-bold tracking-wide uppercase">Critical Node Repair Priorities</h3>
+        <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-border">
+          <Wrench className="w-4 h-4 text-amber-500" />
+          <h3 className="text-xs font-bold tracking-wide uppercase">Critical Node Repair Priorities</h3>
         </div>
 
         {repairs.length === 0 ? (

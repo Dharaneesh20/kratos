@@ -122,3 +122,51 @@ class WorkflowStatusResponse(BaseModel):
     error: Optional[str] = None
     results: Dict[str, Any] = Field(default_factory=dict)
     logs: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+class AgentInfo(BaseModel):
+    id: str
+    name: str
+    purpose: str
+    role_in_project: str
+    status: str = "HEALTHY"  # HEALTHY, BUSY, DEGRADED, OFFLINE
+    ping_ms: float = 12.5
+    last_heartbeat: str
+    current_task: str = "Idle / Monitoring"
+    inference_time_ms: float = 0.0
+    confidence_score: float = 0.95
+    processed_count: int = 0
+
+
+class SpectatorMetrics(BaseModel):
+    overall_health: str = "HEALTHY"
+    active_agents: int = 7
+    nvidia_nim_status: str = "ONLINE"
+    nvidia_nim_ping_ms: float = 18.4
+    cuopt_status: str = "ONLINE"
+    cuopt_response_time_ms: float = 42.1
+    segformer_confidence: float = 0.964
+    avg_inference_time_ms: float = 145.2
+    uptime_seconds: float = 3600.0
+
+
+class AgentLogEntry(BaseModel):
+    id: str
+    timestamp: str
+    agent: str
+    level: str = "INFO"  # INFO, WARNING, ERROR, SUCCESS
+    message: str
+    details: Optional[Dict[str, Any]] = None
+
+
+class ReportMetadata(BaseModel):
+    report_id: str
+    workflow_id: str
+    hazard_type: str
+    created_at: str
+    pdf_url: str
+    csv_url: str
+    resilience_score: float
+    travel_delay: float
+    recommendations_count: int
+

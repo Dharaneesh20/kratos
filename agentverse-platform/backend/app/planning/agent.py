@@ -1,6 +1,13 @@
+import sys
+from pathlib import Path
 import math
 from typing import Any, Dict, List
 import networkx as nx
+
+root_path = Path(__file__).resolve().parents[4]
+if str(root_path) not in sys.path:
+    sys.path.insert(0, str(root_path))
+
 from app.config import settings
 from shared.schemas import EvacuationRoute, PlanningResponse, RepairPriorityItem
 

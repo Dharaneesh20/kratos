@@ -10,6 +10,7 @@ from app.config import settings
 from app.db.models import RunModel, AgentLogModel
 from app.planning.agent import run_planning_agent
 from app.report.pdf_builder import generate_report_files
+from app.spectator.agent import spectator_agent
 from app.websocket.manager import manager
 
 
@@ -59,6 +60,10 @@ async def execute_workflow(workflow_id: str, db: Session, image_bytes: Optional[
         db.add(log_entry)
         db.commit()
 
+        # Update Spectator Agent state & telemetry log
+        spectator_agent.log_event(agent_id=agent, level="INFO", message=msg, details={"workflow_id": workflow_id, "stage": stage})
+        spectator_agent.update_agent_state(agent_id=agent, current_task=f"Executing {stage}", status="BUSY" if pct < 100 else "HEALTHY")
+
         event = {
             "workflow_id": workflow_id,
             "agent": agent,
@@ -69,6 +74,7 @@ async def execute_workflow(workflow_id: str, db: Session, image_bytes: Optional[
             "results": results or {},
         }
         await manager.broadcast(event)
+
 
     try:
         # Stage 1: DATASET

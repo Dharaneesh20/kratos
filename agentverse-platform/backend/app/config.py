@@ -3,11 +3,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    SERVICE_NAME: str = "agentverse-backend"
+    SERVICE_NAME: str = "kratos-backend"
     VISION_SERVICE_URL: str = os.getenv("VISION_SERVICE_URL", "http://localhost:8001")
     GRAPH_SERVICE_URL: str = os.getenv("GRAPH_SERVICE_URL", "http://localhost:8002")
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./agentverse.db")
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "super-secret-key-agentverse-2026")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./kratos.db")
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "super-secret-key-kratos-2026")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
 

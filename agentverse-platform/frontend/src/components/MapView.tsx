@@ -25,14 +25,16 @@ export const MapView: React.FC<MapViewProps> = ({
     if (!mapContainerRef.current) return;
 
     if (!mapRef.current) {
-      // Default initial center (e.g. San Francisco or generic coordinates)
+      // Default initial center (e.g. urban center)
       const map = L.map(mapContainerRef.current, {
-        center: [37.7749, -122.4194],
+        center: [37.785, -122.415],
         zoom: 13,
       });
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
+      // Dark Matter Map Tiles
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
         maxZoom: 19,
       }).addTo(map);
 
@@ -147,7 +149,7 @@ export const MapView: React.FC<MapViewProps> = ({
   }, [evacuationRoutes]);
 
   return (
-    <div className="bg-card border border-border rounded-xl p-4 shadow-sm flex flex-col h-full min-h-[420px]">
+    <div className="bg-card border border-border rounded-xl p-4 shadow-sm flex flex-col h-[380px]">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold tracking-wide uppercase text-foreground flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-primary inline-block"></span>
@@ -170,7 +172,7 @@ export const MapView: React.FC<MapViewProps> = ({
       </div>
 
       <div className="relative flex-1 rounded-lg overflow-hidden border border-border">
-        <div ref={mapContainerRef} className="w-full h-full min-h-[360px] z-10" />
+        <div ref={mapContainerRef} className="w-full h-full min-h-[300px] z-10" />
 
         {/* Road Mask PNG Overlay Preview if available */}
         {roadMaskBase64 && (

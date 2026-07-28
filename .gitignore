@@ -9,3 +9,5 @@ env/
 node_modules/
 dist/
 build/
+agentverse.db
+agentverse-platform/backend/kratos.db

@@ -1,6 +1,6 @@
 import React from 'react';
 import { WorkflowStatus } from '../types';
-import { CheckCircle2, Loader2, AlertCircle, Eye, Network, Flame, Route, FileText, Database } from 'lucide-react';
+import { CheckCircle2, Loader2, AlertCircle, Eye, Network, Flame, Route, FileText, Database, GitCommit, BarChart3, Wrench, Radio } from 'lucide-react';
 
 interface AgentMonitorProps {
   status: WorkflowStatus | null;
@@ -8,12 +8,16 @@ interface AgentMonitorProps {
 }
 
 const STAGES = [
-  { id: 'DATASET', label: 'Dataset Ingestion', icon: Database, agent: 'coordinator' },
+  { id: 'DATASET', label: 'Dataset Ingestion', icon: Database, agent: 'dataset' },
   { id: 'VISION', label: 'Vision SegFormer', icon: Eye, agent: 'vision' },
-  { id: 'GRAPH', label: 'Graph Intelligence', icon: Network, agent: 'graph' },
+  { id: 'SKELETON', label: 'Skeletonization', icon: GitCommit, agent: 'skeletonizer' },
+  { id: 'GRAPH', label: 'Graph Topology', icon: Network, agent: 'graph' },
+  { id: 'CENTRALITY', label: 'Centrality Matrix', icon: BarChart3, agent: 'centrality' },
   { id: 'SIMULATION', label: 'Disaster Stress', icon: Flame, agent: 'simulation' },
   { id: 'PLANNING', label: 'cuOpt Routing', icon: Route, agent: 'planning' },
+  { id: 'REPAIR', label: 'Repair Ranker', icon: Wrench, agent: 'repair' },
   { id: 'REPORT', label: 'Report Generator', icon: FileText, agent: 'report' },
+  { id: 'SPECTATOR', label: 'Spectator Sentinel', icon: Radio, agent: 'spectator' },
 ];
 
 export const AgentMonitor: React.FC<AgentMonitorProps> = ({ status, isConnected }) => {
@@ -50,7 +54,7 @@ export const AgentMonitor: React.FC<AgentMonitorProps> = ({ status, isConnected 
             ></span>
           </span>
           <h2 className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
-            Multi-Agent Workflow Orchestrator
+            KRATOS Multi-Agent Workflow Pipeline
           </h2>
         </div>
         <div className="text-xs font-mono text-muted-foreground">
@@ -77,7 +81,7 @@ export const AgentMonitor: React.FC<AgentMonitorProps> = ({ status, isConnected 
       )}
 
       {/* Stage Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-1.5">
         {STAGES.map((s) => {
           const state = getStageStatus(s.id);
           const Icon = s.icon;

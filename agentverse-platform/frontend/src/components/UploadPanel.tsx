@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Upload, Play, ShieldAlert, Sliders } from 'lucide-react';
 
 interface UploadPanelProps {
-  onRunWorkflow: (file: File | null, hazardType: str, severity: number) => void;
+  onRunWorkflow: (file: File | null, hazardType: string, severity: number) => void;
   isLoading: boolean;
 }
 
