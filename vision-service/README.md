@@ -21,13 +21,48 @@ All API responses include top-level `status` and `agent` fields. Errors use:
 
 Dataset errors use the same shape with `agent: "dataset"`.
 
-## Local Run
+## Install, Dataset, Train, Run
+
+From the repository root:
 
 ```bash
+cd vision-service
 python -m venv .venv
 . .venv/Scripts/activate
 pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+```
+
+Pre-warm the DeepGlobe dataset cache and print the resolved dataset path:
+
+```bash
+python -m app.download
+```
+
+`app.download` uses `kagglehub` to fetch or reuse the cached DeepGlobe Road
+Extraction dataset, then searches for the folder containing `*_sat.jpg` and
+`*_mask.png` pairs. If you already have the dataset locally, place it here and
+the service will prefer it over downloading:
+
+```text
+vision-service/data/train/1_sat.jpg
+vision-service/data/train/1_mask.png
+vision-service/data/train/2_sat.jpg
+vision-service/data/train/2_mask.png
+```
+
+Train the baseline road segmentation model:
+
+```bash
+python -m app.model
+```
+
+Training automatically fetches/resolves the dataset if `data/train/` is empty
+and writes the checkpoint to `weights/roadnet.pt`.
+
+Run the API:
+
+```bash
+uvicorn app.main:app --reload --port 8001
 ```
 
 For Docker-based local development:
