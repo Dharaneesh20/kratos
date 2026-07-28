@@ -1,81 +1,148 @@
 # vision-service
 
-Extracts road networks from satellite imagery, robust to partial occlusion
-(cloud cover / tree canopy). First service in the KRATOS pipeline --
-its GeoJSON output feeds graph-service.
+Vision agent for occlusion-robust road extraction. It loads a dataset scene,
+runs tiled segmentation, skeletonizes and prunes centerlines, and outputs
+GeoJSON for the graph service.
 
-## Setup
+## Endpoints
+
+- `GET /health`
+- `POST /dataset/upload`
+- `POST /dataset/load`
+- `POST /vision/process`
+- `GET /vision/status/{job_id}`
+- `WS /vision/ws/status/{job_id}`
+
+All API responses include top-level `status` and `agent` fields. Errors use:
+
+```json
+{"status":"error","agent":"vision","message":"...","code":"VISION_001"}
+```
+
+Dataset errors use the same shape with `agent: "dataset"`.
+
+## Local Run
 
 ```bash
-python -m venv venv && source venv/bin/activate
+python -m venv .venv
+. .venv/Scripts/activate
 pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-## Dataset
-
-Dataset fetching is automatic via `kagglehub` -- no manual download or
-`~/.kaggle/kaggle.json` setup required for the dataset itself (kagglehub
-handles auth on first call, prompting for a Kaggle token if needed).
-
-```python
-import kagglehub
-path = kagglehub.dataset_download("balraj98/deepglobe-road-extraction-dataset")
-```
-
-`app/dataset.py` and `app/model.py` call this automatically the first time
-they need data: they first check `vision-service/data/train/` for a manual
-copy, and if that's empty they fall back to `app/download.py`, which
-downloads (or reuses the kagglehub cache) and auto-locates the folder
-containing `*_sat.jpg` / `*_mask.png` pairs -- so it works whether Kaggle's
-zip nests the `train/` folder or not.
-
-To pre-warm the cache / see the resolved path without training:
+For Docker-based local development:
 
 ```bash
-python -m app.download
+docker compose -f docker-compose.override.yml up --build
 ```
 
-If you'd rather use a manual copy, drop it at:
+## Typical Flow
 
-```
-vision-service/data/train/1_sat.jpg
-vision-service/data/train/1_mask.png
-...
-```
-
-and it'll be preferred over the kagglehub download automatically.
-
-## Train
+1. Upload a GeoTIFF:
 
 ```bash
-python -m app.model
+curl -X POST "http://localhost:8001/dataset/upload" -F "file=@scene.tif"
 ```
 
-Saves the best checkpoint to `weights/roadnet.pt`.
-
-## Run the service
+2. Load dataset metadata:
 
 ```bash
-uvicorn app.main:app --reload --port 8001
+curl -X POST "http://localhost:8001/dataset/load" \
+  -H "Content-Type: application/json" \
+  -d '{"source":"upload","upload_ref":"file_xxx.tif"}'
 ```
 
-## Test
+3. Start async processing:
 
 ```bash
-curl -X POST -F "file=@data/train/1_sat.jpg" http://localhost:8001/vision/process
-curl http://localhost:8001/health
+curl -X POST "http://localhost:8001/vision/process" \
+  -H "Content-Type: application/json" \
+  -d '{"dataset_id":"ds_xxx","tile_size":512,"overlap":64,"model":"segformer"}'
 ```
 
-## Output contract
+4. Poll status:
 
-`POST /vision/process` returns:
+```bash
+curl "http://localhost:8001/vision/status/job_xxx"
+```
+
+## Sentinel BBox Load
+
+Minimal real Sentinel Hub integration is wired for `source=sentinel`.
+
+Required env vars:
+
+- `SENTINEL_HUB_CLIENT_ID`
+- `SENTINEL_HUB_CLIENT_SECRET`
+
+Example request:
+
+```bash
+curl -X POST "http://localhost:8001/dataset/load" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source":"sentinel",
+    "bbox":[77.55,12.90,77.70,13.05]
+  }'
+```
+
+The service requests a GeoTIFF from Sentinel Process API and stores it under
+`cache/<dataset_id>/scene.tif`.
+
+## Occlusion-Robust Augmentation Policy
+
+The inference path never mutates imagery. Train-time augmentation is defined in
+`app/services/preprocess.py` and applies random rotations, flips,
+brightness/contrast jitter, and coarse dropout blocks that simulate cloud,
+shadow, tree, or building occlusion. This is the intended training policy behind
+the service's occlusion-robust road extraction claim.
+
+## Logging and Request IDs
+
+The FastAPI app installs middleware that reads `x-request-id` from incoming
+requests, or creates a UUID-backed request id when it is missing. Service actions
+emit one-line JSON logs with the request id, route, status code, timing, job id,
+dataset id, and relevant stage metadata.
+
+## Output Contract
+
+Completed status includes:
 
 ```json
 {
-  "road_mask_png_base64": "...",
-  "roads_geojson": { "type": "FeatureCollection", "features": [...] },
-  "image_size": 512
+  "roads_geojson": "cache/ds_xxx/roads.geojson",
+  "road_mask_png": "cache/ds_xxx/road_mask.png",
+  "centerline_png": "cache/ds_xxx/centerline.png",
+  "confidence": 0.94,
+  "tile_count": 48,
+  "occluded_tile_pct": 12.5
 }
 ```
 
-`roads_geojson` is what graph-service consumes.
+`roads.geojson` features include `road_id`, `length_m`, `confidence`, and `road_class`.
+
+## Tests
+
+The test suite covers:
+
+- tiled preprocessing and dataset-level normalization
+- skeletonization and short-branch pruning
+- GeoJSON coordinate reprojection and road properties
+- upload/load/process/status integration
+- mocked Sentinel Hub `source=sentinel` loading without external network access
+- mocked DeepGlobe and SpaceNet provider loading paths
+
+Run with:
+
+```bash
+pytest
+```
+
+## Provider Notes
+
+`source=upload` and `source=sentinel` are the primary end-to-end dataset loading
+paths. `source=deepglobe` resolves the local or Kaggle-cached DeepGlobe training
+set and converts one satellite tile into an EPSG:4326 GeoTIFF scene, using the
+provided bbox when present. `source=spacenet` downloads a configured GeoTIFF from
+`SPACENET_SAMPLE_TIF_URL`. OSM is used for ground-truth vector overlays through
+`fetch_osm_ground_truth`; it is not a raster inference source.
