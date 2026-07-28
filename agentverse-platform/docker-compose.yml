@@ -1,1 +1,42 @@
 version: "3.9"
+
+services:
+  vision-service:
+    build:
+      context: ../vision-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+
+  graph-service:
+    build:
+      context: ../graph-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+
+  agentverse-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - VISION_SERVICE_URL=http://vision-service:8001
+      - GRAPH_SERVICE_URL=http://graph-service:8002
+    depends_on:
+      - vision-service
+      - graph-service
+
+  agentverse-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - agentverse-backend
