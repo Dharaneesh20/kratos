@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.auth.routes import router as auth_router
 from app.config import settings
+from app.chatbot.routes import router as chatbot_router
 from app.coordinator.routes import router as coordinator_router
 from app.db.session import init_db
 from app.memory.routes import router as memory_router
@@ -42,11 +43,13 @@ app.include_router(memory_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(spectator_router, prefix="/api")
 app.include_router(report_router, prefix="/api")
+app.include_router(chatbot_router, prefix="/api")
 
 # Support both /api prefixed routes and direct routes
 app.include_router(coordinator_router)
 app.include_router(spectator_router)
 app.include_router(report_router)
+app.include_router(chatbot_router)
 
 os.makedirs(settings.REPORTS_DIR, exist_ok=True)
 app.mount("/reports", StaticFiles(directory=settings.REPORTS_DIR), name="reports")

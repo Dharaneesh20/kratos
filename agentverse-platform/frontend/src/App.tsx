@@ -9,13 +9,14 @@ import { ReportViewer } from './components/ReportViewer';
 import { AgentHealthTab } from './components/AgentHealthTab';
 import { SpectatorDashboard } from './components/SpectatorDashboard';
 import { ReportManagerTab } from './components/ReportManagerTab';
+import { DisasterChatbot } from './components/DisasterChatbot';
 import { useWebSocket } from './hooks/useWebSocket';
 import { WorkflowStatus, AgentInfo, AgentLogEntry, SpectatorMetrics } from './types';
-import { Shield, Moon, Sun, Layers, Map, Activity, Radio, FileText } from 'lucide-react';
+import { Shield, Moon, Sun, Layers, Map, Activity, Radio, FileText, Bot } from 'lucide-react';
 
 export function App() {
   const [darkMode, setDarkMode] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'agents' | 'spectator' | 'reports'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'agents' | 'spectator' | 'reports' | 'chatbot'>('overview');
   const [workflowStatus, setWorkflowStatus] = useState<WorkflowStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -213,13 +214,25 @@ export function App() {
             <FileText className="w-3.5 h-3.5 text-purple-400" />
             <span>Report Server</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab('chatbot')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+              activeTab === 'chatbot'
+                ? 'bg-card text-foreground shadow-sm border border-border/80'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Bot className="w-3.5 h-3.5 text-emerald-400" />
+            <span>NeMoTron AI Chatbot</span>
+          </button>
         </div>
 
         {/* Right Action Icons */}
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-mono bg-secondary px-3 py-1.5 rounded-lg border border-border">
             <Layers className="w-3.5 h-3.5 text-primary" />
-            <span>NVIDIA cuOpt + SegFormer AI</span>
+            <span>NVIDIA cuOpt + NeMoTron LLM</span>
           </div>
 
           <button
@@ -253,10 +266,10 @@ export function App() {
           Spectator
         </button>
         <button
-          onClick={() => setActiveTab('reports')}
-          className={`p-2 rounded-lg ${activeTab === 'reports' ? 'bg-primary text-primary-foreground font-bold' : 'text-muted-foreground'}`}
+          onClick={() => setActiveTab('chatbot')}
+          className={`p-2 rounded-lg ${activeTab === 'chatbot' ? 'bg-primary text-primary-foreground font-bold' : 'text-muted-foreground'}`}
         >
-          Reports
+          Chatbot
         </button>
       </div>
 
@@ -273,6 +286,7 @@ export function App() {
               <UploadPanel onRunWorkflow={handleRunWorkflow} isLoading={isLoading} />
               <ResilienceGauge simulationData={workflowStatus?.results?.simulation_data} />
               <ReportViewer reportData={workflowStatus?.results?.report_data} workflowId={workflowStatus?.workflow_id} />
+              <DisasterChatbot workflowId={workflowStatus?.workflow_id} />
             </div>
 
             {/* Right Column */}
@@ -301,6 +315,11 @@ export function App() {
         {/* Tab 4: Report Server */}
         {activeTab === 'reports' && (
           <ReportManagerTab />
+        )}
+
+        {/* Tab 5: NVIDIA NeMoTron AI Chatbot */}
+        {activeTab === 'chatbot' && (
+          <DisasterChatbot workflowId={workflowStatus?.workflow_id} />
         )}
       </main>
     </div>

@@ -176,6 +176,19 @@ class SpectatorAgent:
                 "confidence_score": 1.0,
                 "processed_count": 0,
             },
+            "chatbot": {
+                "id": "chatbot",
+                "name": "Chatbot Controller Agent",
+                "purpose": "Manages NVIDIA NIM / NeMoTron LLM disaster intelligence reasoning and conversational explanations.",
+                "role_in_project": "Provides tactical explanations detailing why specific evacuation routes were chosen.",
+                "status": "HEALTHY",
+                "ping_ms": 11.2,
+                "last_heartbeat": datetime.now().isoformat(),
+                "current_task": "NeMoTron LLM Explanation Engine Active",
+                "inference_time_ms": 120.0,
+                "confidence_score": 0.99,
+                "processed_count": 0,
+            },
         }
 
         # Real NVIDIA NIM and cuOpt telemetry state (default to actual status)
