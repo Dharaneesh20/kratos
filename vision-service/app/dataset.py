@@ -34,11 +34,18 @@ def list_pairs(split_dir: str):
 def resolve_train_dir(preferred_dir: str) -> str:
     """
     Use preferred_dir (e.g. data/train) if it already has sat/mask pairs
-    (manual download path). Otherwise fall back to kagglehub, which
-    downloads/caches the dataset and returns the resolved internal path.
+    (manual download path), or dataset_unprocessed/train. Otherwise fall back
+    to kagglehub.
     """
     if os.path.isdir(preferred_dir) and list_pairs(preferred_dir):
         return preferred_dir
+
+    # Sibling or parent directory check for dataset_unprocessed/train
+    parent_dir = os.path.dirname(os.path.abspath(preferred_dir))
+    service_dir = os.path.dirname(parent_dir)
+    unprocessed_train = os.path.join(service_dir, "dataset_unprocessed", "train")
+    if os.path.isdir(unprocessed_train) and list_pairs(unprocessed_train):
+        return unprocessed_train
 
     from app.download import get_train_dir
 
@@ -46,9 +53,12 @@ def resolve_train_dir(preferred_dir: str) -> str:
 
 
 class RoadDataset(Dataset):
-    def __init__(self, split_dir: str, transform=None, img_size: int = None):
-        split_dir = resolve_train_dir(split_dir)
-        self.pairs = list_pairs(split_dir)
+    def __init__(self, split_dir: str = None, transform=None, img_size: int = None, pairs=None):
+        if pairs is not None:
+            self.pairs = pairs
+        else:
+            split_dir = resolve_train_dir(split_dir)
+            self.pairs = list_pairs(split_dir)
         if not self.pairs:
             raise FileNotFoundError(
                 f"No sat/mask pairs found in {split_dir}. "

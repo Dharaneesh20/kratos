@@ -20,7 +20,8 @@ class CriticalNode(BaseModel):
 
 
 class GraphBuildRequest(BaseModel):
-    roads_geojson: Dict[str, Any]
+    roads_geojson: Optional[Dict[str, Any]] = None
+    roads_geojson_path: Optional[str] = None
     snap_tolerance_m: float = 5.0
 
 
@@ -29,12 +30,15 @@ class GraphBuildResponse(BaseModel):
     agent: str = "graph"
     nodes: int
     edges: int
-    graph_data: Dict[str, Any]
-    critical_nodes: List[CriticalNode]
+    graph_data: Dict[str, Any] = Field(default_factory=dict)
+    graph_json_path: Optional[str] = None
+    critical_nodes_path: Optional[str] = None
+    critical_nodes: List[CriticalNode] = Field(default_factory=list)
 
 
 class SimulationRunRequest(BaseModel):
-    graph_data: Dict[str, Any]
+    graph_data: Optional[Dict[str, Any]] = None
+    graph_json_path: Optional[str] = None
     hazard_type: str = "FLOOD"
     affected_node_ids: List[str] = Field(default_factory=list)
     affected_edge_ids: List[str] = Field(default_factory=list)
@@ -44,6 +48,7 @@ class SimulationRunRequest(BaseModel):
 class SimulationRunResponse(BaseModel):
     status: str = "success"
     agent: str = "simulation"
+    simulation_json_path: Optional[str] = None
     travel_delay: float
     resilience: float
     affected_regions: List[str] = Field(default_factory=list)

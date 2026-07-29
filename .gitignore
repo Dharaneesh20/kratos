@@ -1,22 +1,71 @@
+# ===============================================================================
+# KRATOS - Multi-Agent System GitIgnore Rules
+# ===============================================================================
+
+# 1. Python Cache & Virtual Environments
 __pycache__/
 *.py[cod]
+*$py.class
 .venv/
 venv/
 env/
+ENV/
 .pytest_cache/
+.coverage
+htmlcov/
 .mypy_cache/
-.DS_Store
-node_modules/
-dist/
-build/
-agentverse.db
-agentverse-platform/backend/kratos.db
+
+# 2. Datasets, Satellite Imagery & Cache (STRICTLY IGNORED)
+**/data/
+**/data/**
+**/dataset_unprocessed/
+**/dataset_unprocessed/**
+**/dataset_processed/
+**/cache/
+**/cache/**
+*.tif
+*.tiff
+*.jpg
+*.jpeg
+*.png
+
+# Whitelist UI assets & test fixtures ONLY
+!**/frontend/src/assets/**
+!**/frontend/public/**
+!**/tests/fixtures/**
+
+# 3. Model Weights & Checkpoints
+**/weights/*.pt
+**/weights/*.pth
+**/weights/*.onnx
+**/weights/*.safetensors
+**/weights/*.bin
+!**/weights/README.md
+
+# 4. Reports & Generated Outputs
+reports/
+*.pdf
+*.csv
+!**/sample*.csv
+
+# 5. Database & Secrets
 .env
 .env.*
 *.env
 .env.local
-*.key
-*.pem
+agentverse.db
 *.db
-*.zip
-reports/
+*.sqlite
+*.sqlite3
+
+# 6. Node & Build Artifacts
+node_modules/
+dist/
+build/
+.output/
+
+# 7. OS & IDE System Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

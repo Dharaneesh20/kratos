@@ -348,44 +348,54 @@ class SpectatorAgent:
                 self.agents["simulation"]["status"] = "OFFLINE"
                 self.agents["simulation"]["ping_ms"] = 0.0
 
-            # 3. Real NVIDIA NIM Endpoint check
-            if settings.NIM_ENDPOINT and settings.NIM_API_KEY:
+            # 3. Real NVIDIA NIM Endpoint check — use /models (valid NVIDIA discovery endpoint)
+            api_key = settings.active_nvidia_key
+            if settings.NIM_ENDPOINT and api_key:
                 try:
                     t0 = time.time()
-                    resp = await client.get(f"{settings.NIM_ENDPOINT}/health", headers={"Authorization": f"Bearer {settings.NIM_API_KEY}"})
+                    # NVIDIA integrate.api.nvidia.com exposes /models, NOT /health
+                    resp = await client.get(
+                        f"{settings.NIM_ENDPOINT}/models",
+                        headers={"Authorization": f"Bearer {api_key}"},
+                    )
                     ping = round((time.time() - t0) * 1000, 1)
                     if resp.status_code == 200:
                         self.nvidia_nim_status = "ONLINE"
                         self.nvidia_nim_ping_ms = ping
+                        self.agents["chatbot"]["current_task"] = "NeMoTron LLM ONLINE — NIM Authenticated"
                     else:
                         self.nvidia_nim_status = f"HTTP {resp.status_code}"
                         self.nvidia_nim_ping_ms = 0.0
-                except Exception:
+                except Exception as e:
                     self.nvidia_nim_status = "NOT CONNECTED"
                     self.nvidia_nim_ping_ms = 0.0
             else:
-                self.nvidia_nim_status = "NOT CONNECTED"
+                self.nvidia_nim_status = "NO API KEY"
                 self.nvidia_nim_ping_ms = 0.0
 
-            # 4. Real NVIDIA cuOpt Endpoint check
-            if settings.CUOPT_ENDPOINT:
+            # 4. Real NVIDIA cuOpt check — probe via NIM /models (cuOpt Cloud has no /health)
+            if settings.CUOPT_API_KEY or api_key:
                 try:
                     t0 = time.time()
-                    resp = await client.get(f"{settings.CUOPT_ENDPOINT}/health")
+                    # cuOpt Cloud uses the same NVIDIA API gateway — test reachability via /models
+                    resp = await client.get(
+                        f"{settings.NIM_ENDPOINT}/models",
+                        headers={"Authorization": f"Bearer {settings.CUOPT_API_KEY or api_key}"},
+                    )
                     ping = round((time.time() - t0) * 1000, 1)
                     if resp.status_code == 200:
                         self.cuopt_status = "ONLINE"
                         self.cuopt_response_time_ms = ping
-                        self.agents["planning"]["current_task"] = "NVIDIA cuOpt Acceleration Active"
+                        self.agents["planning"]["current_task"] = "NVIDIA cuOpt GPU Acceleration Active"
                     else:
                         self.cuopt_status = f"HTTP {resp.status_code}"
                         self.cuopt_response_time_ms = 0.0
                 except Exception:
-                    self.cuopt_status = "NOT CONNECTED (Dijkstra Fallback Active)"
+                    self.cuopt_status = "NOT CONNECTED (Dijkstra Fallback)"
                     self.cuopt_response_time_ms = 0.0
                     self.agents["planning"]["current_task"] = "Dijkstra Routing Fallback Active"
             else:
-                self.cuopt_status = "NOT CONNECTED (Dijkstra Fallback Active)"
+                self.cuopt_status = "NO API KEY"
                 self.cuopt_response_time_ms = 0.0
                 self.agents["planning"]["current_task"] = "Dijkstra Routing Fallback Active"
 

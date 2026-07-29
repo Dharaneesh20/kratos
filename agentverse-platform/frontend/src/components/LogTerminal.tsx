@@ -65,16 +65,16 @@ export const LogTerminal: React.FC<LogTerminalProps> = ({ logs, onClearLogs }) =
   };
 
   return (
-    <div className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-xl flex flex-col h-[520px]">
+    <div className="glass-card overflow-hidden flex flex-col h-[480px]">
       {/* Terminal Header Bar */}
-      <div className="bg-slate-900 px-4 py-3 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+      <div className="px-4 py-3 border-b border-white/[0.06] bg-white/[0.02] flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Terminal className="w-4 h-4 text-emerald-400" />
-          <span className="text-xs font-mono font-semibold text-slate-200 uppercase tracking-wider">
+          <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
             KRATOS Spectator Live Log Stream
           </span>
-          <span className="text-[10px] font-mono bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span className="text-[9px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-full flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             LIVE ({filteredLogs.length})
           </span>
         </div>
@@ -83,13 +83,13 @@ export const LogTerminal: React.FC<LogTerminalProps> = ({ logs, onClearLogs }) =
         <div className="flex flex-wrap items-center gap-2">
           {/* Search box */}
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1.5" />
+            <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-2.5 top-1.5" />
             <input
               type="text"
               placeholder="Search logs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-md pl-8 pr-2.5 py-1 font-mono focus:outline-none focus:border-cyan-500 w-36 sm:w-44"
+              className="bg-white/[0.03] border border-white/[0.08] text-foreground text-xs rounded-lg pl-8 pr-2.5 py-1.5 font-mono focus:outline-none focus:border-violet-500/50 w-36 sm:w-44"
             />
           </div>
 
@@ -97,7 +97,7 @@ export const LogTerminal: React.FC<LogTerminalProps> = ({ logs, onClearLogs }) =
           <select
             value={selectedAgent}
             onChange={(e) => setSelectedAgent(e.target.value)}
-            className="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-md px-2 py-1 font-mono focus:outline-none focus:border-cyan-500 cursor-pointer"
+            className="bg-white/[0.03] border border-white/[0.08] text-foreground text-xs rounded-lg px-2 py-1.5 font-mono focus:outline-none focus:border-violet-500/50 cursor-pointer"
           >
             <option value="all">All Agents</option>
             <option value="coordinator">Coordinator</option>
@@ -116,10 +116,10 @@ export const LogTerminal: React.FC<LogTerminalProps> = ({ logs, onClearLogs }) =
           {/* Auto-scroll toggle */}
           <button
             onClick={() => setAutoScroll(!autoScroll)}
-            className={`p-1.5 rounded-md border text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer ${
+            className={`p-1.5 rounded-lg border text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer ${
               autoScroll
-                ? 'bg-cyan-950/60 border-cyan-800 text-cyan-400'
-                : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                ? 'bg-violet-500/15 border-violet-500/30 text-violet-400'
+                : 'bg-white/[0.03] border-white/[0.08] text-muted-foreground hover:text-foreground'
             }`}
             title="Toggle Auto Scroll"
           >
@@ -130,7 +130,7 @@ export const LogTerminal: React.FC<LogTerminalProps> = ({ logs, onClearLogs }) =
           {onClearLogs && (
             <button
               onClick={onClearLogs}
-              className="p-1.5 rounded-md border border-slate-800 bg-slate-950 text-slate-400 hover:text-rose-400 hover:border-rose-900 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] text-muted-foreground hover:text-rose-400 hover:border-rose-500/30 transition-colors cursor-pointer"
               title="Clear Logs"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -140,21 +140,21 @@ export const LogTerminal: React.FC<LogTerminalProps> = ({ logs, onClearLogs }) =
       </div>
 
       {/* Terminal Content Stream */}
-      <div className="flex-1 p-4 font-mono text-xs overflow-y-auto space-y-2 bg-slate-950 selection:bg-cyan-900 selection:text-white">
+      <div className="flex-1 p-4 font-mono text-xs overflow-y-auto space-y-1.5 bg-white/[0.01] selection:bg-violet-900 selection:text-white">
         {filteredLogs.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-slate-600 text-center py-12">
-            <Terminal className="w-8 h-8 mb-2 opacity-40" />
+          <div className="h-full flex flex-col items-center justify-center text-muted-foreground text-center py-12">
+            <Terminal className="w-8 h-8 mb-2 opacity-30" />
             <p>No log messages matching current filter criteria.</p>
           </div>
         ) : (
           filteredLogs.map((log) => (
             <div
               key={log.id}
-              className="flex flex-col sm:flex-row sm:items-start gap-1.5 sm:gap-3 p-1.5 rounded hover:bg-slate-900/60 transition-colors border border-transparent hover:border-slate-800/60"
+              className="flex flex-col sm:flex-row sm:items-start gap-1.5 sm:gap-3 p-1.5 rounded-lg hover:bg-white/[0.03] transition-colors border border-transparent hover:border-white/[0.05]"
             >
               {/* Time & Badge */}
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-[11px] text-slate-500">{log.timestamp}</span>
+                <span className="text-[11px] text-muted-foreground">{log.timestamp}</span>
                 <span
                   className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border ${getAgentBadgeColor(
                     log.agent
@@ -172,8 +172,8 @@ export const LogTerminal: React.FC<LogTerminalProps> = ({ logs, onClearLogs }) =
               </div>
 
               {/* Message */}
-              <div className="text-slate-200 leading-relaxed break-all">
-                <span className="text-cyan-500 font-bold mr-1.5">&gt;</span>
+              <div className="text-foreground/90 leading-relaxed break-all">
+                <span className="text-violet-400 font-bold mr-1.5">›</span>
                 {log.message}
               </div>
             </div>

@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.env
+.env.*
+
+# Datasets and cache
+data/
+data/*
+dataset_unprocessed/
+cache/
+*.tif
+*.tiff
+*.jpg
+*.jpeg
+*.png
+!tests/fixtures/*
+
+# Weights
+weights/*.pt
+weights/*.pth
+weights/*.onnx
+weights/*.safetensors
+weights/*.bin
+!weights/README.md

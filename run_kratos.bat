@@ -23,9 +23,11 @@ powershell -Command "Write-Host '[1/5] Checking Environment Files (.env) and NVI
 IF NOT EXIST "%ROOT_DIR%.env" (
     powershell -Command "Write-Host '[!] Root .env missing. Creating default .env file...' -ForegroundColor Yellow"
     (
-        echo NVIDIA_API_KEY=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
-        echo CUOPT_API_KEY=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
-        echo NIM_API_KEY=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
+        echo NVIDIA_API_KEY=your_nvidia_api_key_here
+        echo CUOPT_API_KEY=your_nvidia_api_key_here
+        echo NIM_API_KEY=your_nvidia_api_key_here
+        echo NIM_ENDPOINT=https://integrate.api.nvidia.com/v1
+        echo NIM_MODEL=nvidia/nemotron-3-ultra-550b-a55b
         echo CUOPT_ENDPOINT=https://integrate.api.nvidia.com/v1/cuopt
     ) > "%ROOT_DIR%.env"
 )
@@ -53,7 +55,7 @@ CD /D "%ROOT_DIR%vision-service"
 
 IF NOT EXIST ".venv" (
     powershell -Command "Write-Host '[!] Vision Service .venv not found. Creating virtual environment...' -ForegroundColor Yellow"
-    python -m venv .venv
+    py -3.12 -m venv .venv
     IF !ERRORLEVEL! NEQ 0 (
         powershell -Command "Write-Host '[ERROR] Failed to create .venv for Vision Service! Ensure Python is installed.' -ForegroundColor Red"
         PAUSE
@@ -62,7 +64,7 @@ IF NOT EXIST ".venv" (
 )
 
 echo [*] Checking Vision Service pip requirements...
-.venv\Scripts\python.exe -m pip install --quiet -r requirements.txt
+.venv\Scripts\python.exe -m pip install -r requirements.txt
 IF !ERRORLEVEL! NEQ 0 (
     powershell -Command "Write-Host '[ERROR] Vision Service pip install failed! Check requirements.txt.' -ForegroundColor Red"
     PAUSE
@@ -79,7 +81,7 @@ CD /D "%ROOT_DIR%graph-service"
 
 IF NOT EXIST ".venv" (
     powershell -Command "Write-Host '[!] Graph Service .venv not found. Creating virtual environment...' -ForegroundColor Yellow"
-    python -m venv .venv
+    py -3.12 -m venv .venv
     IF !ERRORLEVEL! NEQ 0 (
         powershell -Command "Write-Host '[ERROR] Failed to create .venv for Graph Service!' -ForegroundColor Red"
         PAUSE
@@ -88,7 +90,7 @@ IF NOT EXIST ".venv" (
 )
 
 echo [*] Checking Graph Service pip requirements...
-.venv\Scripts\python.exe -m pip install --quiet -r requirements.txt
+.venv\Scripts\python.exe -m pip install -r requirements.txt
 IF !ERRORLEVEL! NEQ 0 (
     powershell -Command "Write-Host '[ERROR] Graph Service pip install failed!' -ForegroundColor Red"
     PAUSE
@@ -105,7 +107,7 @@ CD /D "%ROOT_DIR%agentverse-platform\backend"
 
 IF NOT EXIST ".venv" (
     powershell -Command "Write-Host '[!] Backend Coordinator .venv not found. Creating virtual environment...' -ForegroundColor Yellow"
-    python -m venv .venv
+    py -3.12 -m venv .venv
     IF !ERRORLEVEL! NEQ 0 (
         powershell -Command "Write-Host '[ERROR] Failed to create .venv for Backend Coordinator!' -ForegroundColor Red"
         PAUSE
@@ -114,7 +116,7 @@ IF NOT EXIST ".venv" (
 )
 
 echo [*] Checking Backend Coordinator pip requirements...
-.venv\Scripts\python.exe -m pip install --quiet -r requirements.txt
+.venv\Scripts\python.exe -m pip install -r requirements.txt
 IF !ERRORLEVEL! NEQ 0 (
     powershell -Command "Write-Host '[ERROR] Backend Coordinator pip install failed!' -ForegroundColor Red"
     PAUSE

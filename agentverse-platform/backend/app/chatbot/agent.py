@@ -82,7 +82,11 @@ class ChatbotControllerAgent:
         spectator_agent.log_event(self.agent_id, "INFO", f"Chatbot processing query: {query}")
 
         api_key = settings.active_nvidia_key
-        nim_endpoint = settings.NIM_ENDPOINT or "https://integrate.api.nvidia.com/v1/chat/completions"
+        base_endpoint = settings.NIM_ENDPOINT.rstrip("/")
+        if base_endpoint.endswith("/chat/completions"):
+            nim_endpoint = base_endpoint
+        else:
+            nim_endpoint = f"{base_endpoint}/chat/completions"
 
         if api_key:
             try:
@@ -92,24 +96,37 @@ class ChatbotControllerAgent:
                 }
                 messages = self._build_disaster_context_prompt(run_data, query)
                 payload = {
-                    "model": "nvidia/nemotron-4-340b-instruct",
+                    "model": settings.NIM_MODEL,
                     "messages": messages,
-                    "max_tokens": 500,
-                    "temperature": 0.2,
+                    "temperature": 0.6,
+                    "top_p": 0.95,
+                    "max_tokens": 4096,
                 }
-                with httpx.Client(timeout=8.0) as client:
+                with httpx.Client(timeout=45.0) as client:
                     resp = client.post(nim_endpoint, json=payload, headers=headers)
                     if resp.status_code == 200:
                         res_json = resp.json()
-                        content = res_json.get("choices", [{}])[0].get("message", {}).get("content")
-                        if content:
-                            spectator_agent.update_agent_state(self.agent_id, "Idle", "HEALTHY")
-                            return content
+                        message_obj = res_json.get("choices", [{}])[0].get("message", {})
+                        content = message_obj.get("content", "")
+                        reasoning = message_obj.get("reasoning_content", "")
+
+                        full_response = ""
+                        if reasoning and reasoning.strip():
+                            full_response += f"**AI Reasoning Process:**\n{reasoning.strip()}\n\n---\n\n"
+                        if content and content.strip():
+                            full_response += content.strip()
+
+                        if full_response:
+                            spectator_agent.log_event(self.agent_id, "INFO", f"NIM response received ({len(full_response)} chars)")
+                            spectator_agent.update_agent_state(self.agent_id, "NIM Response Delivered", "HEALTHY")
+                            return full_response
+                    else:
+                        spectator_agent.log_event(self.agent_id, "WARNING", f"NVIDIA NIM HTTP {resp.status_code}: {resp.text[:200]}")
             except Exception as e:
                 spectator_agent.log_event(self.agent_id, "WARNING", f"NVIDIA NIM API call error: {str(e)}")
 
         # Use grounded fallback engine
-        spectator_agent.update_agent_state(self.agent_id, "Idle", "HEALTHY")
+        spectator_agent.update_agent_state(self.agent_id, "Idle (Fallback Mode)", "HEALTHY")
         return self._generate_fallback_explanation(run_data, query)
 
 

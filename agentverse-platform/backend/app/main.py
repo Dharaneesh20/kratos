@@ -17,6 +17,7 @@ from app.chatbot.routes import router as chatbot_router
 from app.coordinator.routes import router as coordinator_router
 from app.db.session import init_db
 from app.memory.routes import router as memory_router
+from app.planning.routes import router as planning_router
 from app.report.routes import router as report_router
 from app.spectator.agent import spectator_agent
 from app.spectator.routes import router as spectator_router
@@ -42,12 +43,14 @@ app.include_router(coordinator_router, prefix="/api")
 app.include_router(memory_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(spectator_router, prefix="/api")
+app.include_router(planning_router, prefix="/api")
 app.include_router(report_router, prefix="/api")
 app.include_router(chatbot_router, prefix="/api")
 
 # Support both /api prefixed routes and direct routes
 app.include_router(coordinator_router)
 app.include_router(spectator_router)
+app.include_router(planning_router)
 app.include_router(report_router)
 app.include_router(chatbot_router)
 

@@ -58,8 +58,19 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     )
 
 
+def _sanitize_error_obj(obj):
+    if isinstance(obj, bytes):
+        return obj.decode("utf-8", errors="replace")
+    elif isinstance(obj, dict):
+        return {k: _sanitize_error_obj(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [_sanitize_error_obj(v) for v in obj]
+    return obj
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    sanitized_errors = _sanitize_error_obj(exc.errors())
     return JSONResponse(
         status_code=422,
         content={
@@ -67,7 +78,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "agent": "vision",
             "message": "request validation failed",
             "code": "VISION_VALIDATION_ERROR",
-            "errors": jsonable_encoder(exc.errors()),
+            "errors": jsonable_encoder(sanitized_errors),
         },
     )
 

@@ -1,77 +1,113 @@
 import React from 'react';
 import { SimulationData } from '../types';
-import { Activity, Clock, ShieldCheck, MapPin } from 'lucide-react';
+import { Activity, Clock, ShieldCheck, MapPin, TrendingDown } from 'lucide-react';
 
 interface ResilienceGaugeProps {
   simulationData?: SimulationData;
 }
 
 export const ResilienceGauge: React.FC<ResilienceGaugeProps> = ({ simulationData }) => {
-  const resilience = simulationData?.resilience ?? 1.0;
-  const travelDelay = simulationData?.travel_delay ?? 0.0;
+  const resilience = simulationData?.resilience ?? null;
+  const travelDelay = simulationData?.travel_delay ?? null;
   const affectedRegions = simulationData?.affected_regions || [];
 
-  const pct = Math.round(resilience * 100);
-  const strokeDashoffset = 283 - (283 * pct) / 100;
+  const pct = resilience !== null ? Math.round(resilience * 100) : 0;
+  const circumference = 2 * Math.PI * 45;
+  const strokeDashoffset = resilience !== null
+    ? circumference - (circumference * pct) / 100
+    : circumference;
+
+  const gaugeColor =
+    resilience === null
+      ? '#374151'
+      : pct >= 80
+      ? '#10b981'
+      : pct >= 50
+      ? '#f59e0b'
+      : '#f43f5e';
+
+  const statusLabel =
+    resilience === null
+      ? 'Awaiting Analysis'
+      : pct >= 80
+      ? 'HIGH OPERATIONAL'
+      : pct >= 50
+      ? 'MODERATE DEGRADATION'
+      : 'CRITICAL FAILURE';
 
   return (
-    <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
-      <div className="flex items-center gap-2 mb-4 pb-2 border-b border-border">
-        <Activity className="w-5 h-5 text-primary" />
-        <h3 className="text-sm font-bold tracking-wide uppercase">Resilience Index & Impact</h3>
+    <div className="glass-card p-5">
+      {/* Header */}
+      <div className="flex items-center gap-2.5 mb-4">
+        <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center">
+          <Activity className="w-4 h-4 text-cyan-400" />
+        </div>
+        <div>
+          <h3 className="text-sm font-bold text-white">Resilience Index</h3>
+          <p className="text-[10px] text-muted-foreground">Disaster impact & network survivability</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+      <div className="flex items-center gap-5">
         {/* SVG Radial Gauge */}
-        <div className="flex flex-col items-center justify-center relative py-2">
-          <svg className="w-32 h-32 transform -rotate-90">
+        <div className="relative flex-shrink-0" style={{ width: 110, height: 110 }}>
+          <svg width="110" height="110" className="transform -rotate-90">
             <circle
-              cx="64"
-              cy="64"
-              r="45"
-              className="stroke-muted"
+              cx="55" cy="55" r="45"
+              stroke="rgba(255,255,255,0.06)"
               strokeWidth="10"
               fill="transparent"
             />
             <circle
-              cx="64"
-              cy="64"
-              r="45"
-              className="stroke-primary transition-all duration-1000 ease-out"
+              cx="55" cy="55" r="45"
+              stroke={gaugeColor}
               strokeWidth="10"
-              strokeDasharray="283"
+              strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               fill="transparent"
+              style={{ transition: 'stroke-dashoffset 1s ease, stroke 0.5s ease' }}
             />
           </svg>
-          <div className="absolute flex flex-col items-center justify-center">
-            <span className="text-2xl font-extrabold font-mono text-foreground">{pct}%</span>
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Resilience</span>
+          {/* Glow effect */}
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{
+              boxShadow: resilience !== null ? `0 0 20px ${gaugeColor}40` : 'none',
+              borderRadius: '50%',
+            }}
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-xl font-extrabold font-mono text-white">
+              {resilience !== null ? `${pct}%` : '—'}
+            </span>
+            <span className="text-[9px] uppercase tracking-widest text-muted-foreground">Resilience</span>
           </div>
         </div>
 
-        {/* Impact Cards */}
-        <div className="space-y-3">
-          <div className="bg-secondary/40 border border-border rounded-lg p-3 flex items-center gap-3">
-            <div className="p-2 rounded-md bg-destructive/10 text-destructive">
-              <Clock className="w-4 h-4" />
+        {/* Stats */}
+        <div className="flex-1 space-y-2">
+          {travelDelay !== null && (
+            <div className="flex items-center gap-2.5 bg-rose-500/8 border border-rose-500/20 rounded-xl p-2.5">
+              <TrendingDown className="w-3.5 h-3.5 text-rose-400 flex-shrink-0" />
+              <div>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Travel Delay</p>
+                <p className="text-sm font-bold font-mono text-rose-400">+{travelDelay.toFixed(1)}%</p>
+              </div>
             </div>
-            <div>
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase">Travel Delay Penalty</p>
-              <p className="text-base font-bold font-mono text-destructive">+{travelDelay}%</p>
-            </div>
-          </div>
+          )}
 
-          <div className="bg-secondary/40 border border-border rounded-lg p-3 flex items-center gap-3">
-            <div className="p-2 rounded-md bg-emerald-500/10 text-emerald-500">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
+          <div
+            className="flex items-center gap-2.5 rounded-xl p-2.5 border"
+            style={{
+              borderColor: `${gaugeColor}30`,
+              background: `${gaugeColor}08`,
+            }}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" style={{ color: gaugeColor }} />
             <div>
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase">System Status</p>
-              <p className="text-xs font-bold text-foreground">
-                {pct >= 80 ? 'HIGH OPERATIONAL' : pct >= 50 ? 'MODERATE DEGRADATION' : 'CRITICAL RESILIENCE FAILURE'}
-              </p>
+              <p className="text-[9px] text-muted-foreground uppercase tracking-wide">System Status</p>
+              <p className="text-xs font-bold" style={{ color: gaugeColor }}>{statusLabel}</p>
             </div>
           </div>
         </div>
@@ -79,13 +115,17 @@ export const ResilienceGauge: React.FC<ResilienceGaugeProps> = ({ simulationData
 
       {/* Affected Regions */}
       {affectedRegions.length > 0 && (
-        <div className="mt-4 pt-3 border-t border-border">
-          <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5 text-primary" /> Damaged / Disconnected Sectors ({affectedRegions.length})
+        <div className="mt-4 pt-3 border-t border-white/[0.06]">
+          <p className="text-[10px] font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
+            <MapPin className="w-3 h-3 text-rose-400" />
+            Affected Sectors ({affectedRegions.length})
           </p>
           <div className="flex flex-wrap gap-1.5">
             {affectedRegions.map((region, idx) => (
-              <span key={idx} className="bg-muted text-muted-foreground text-[11px] px-2 py-0.5 rounded border border-border">
+              <span
+                key={idx}
+                className="text-[9px] px-2 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20"
+              >
                 {region}
               </span>
             ))}

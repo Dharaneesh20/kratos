@@ -46,8 +46,8 @@ def train(epochs: int = 20, batch_size: int = 8, lr: float = 1e-4):
     print(f"Validation pairs: {len(val_pairs)}")
     print(f"Device: {device}")
 
-    train_ds = RoadDataset(split_dir, transform=train_transform(settings.IMG_SIZE))
-    val_ds = RoadDataset(split_dir, transform=val_transform(settings.IMG_SIZE))
+    train_ds = RoadDataset(split_dir, transform=train_transform(settings.IMG_SIZE), pairs=train_pairs)
+    val_ds = RoadDataset(split_dir, transform=val_transform(settings.IMG_SIZE), pairs=val_pairs)
 
     # num_workers=0 is recommended on Windows while debugging
     train_loader = DataLoader(

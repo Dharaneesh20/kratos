@@ -11,7 +11,8 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
 
-    NIM_ENDPOINT: str = os.getenv("NIM_ENDPOINT", "")
+    NIM_ENDPOINT: str = os.getenv("NIM_ENDPOINT", "https://integrate.api.nvidia.com/v1")
+    NIM_MODEL: str = os.getenv("NIM_MODEL", "nvidia/llama-3.3-nemotron-super-49b-v1")
     NIM_API_KEY: str = os.getenv("NIM_API_KEY", "")
     NVIDIA_API_KEY: str = os.getenv("NVIDIA_API_KEY", "")
     CUOPT_API_KEY: str = os.getenv("CUOPT_API_KEY", "")

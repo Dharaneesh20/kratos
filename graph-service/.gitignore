@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.env
+.env.*
+
+cache/
+*.json
+!tests/fixtures/*
+!package.json
+!tsconfig.json
